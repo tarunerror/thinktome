@@ -7,6 +7,8 @@ import {
   GithubAuthProvider,
   signOut,
   sendPasswordResetEmail,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
   type User
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
@@ -41,7 +43,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
     });
 
-    // Return unsubscribe function for cleanup
     return () => unsubscribe();
   },
 
@@ -101,12 +102,42 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       set({ isLoading: true, error: null });
       const provider = new GithubAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      set({ 
-        user: userCredential.user,
-        isAuthenticated: true,
-        isLoading: false
-      });
+      
+      try {
+        const userCredential = await signInWithPopup(auth, provider);
+        set({ 
+          user: userCredential.user,
+          isAuthenticated: true,
+          isLoading: false
+        });
+      } catch (error: any) {
+        if (error.code === 'auth/account-exists-with-different-credential') {
+          // Get existing providers for the email
+          const email = error.customData.email;
+          const providers = await fetchSignInMethodsForEmail(auth, email);
+          
+          if (providers.includes('google.com')) {
+            // If user has a Google account, prompt them to sign in with Google
+            set({ 
+              error: 'This email is already associated with a Google account. Please sign in with Google.',
+              isLoading: false
+            });
+          } else if (providers.includes('password')) {
+            // If user has an email/password account
+            set({ 
+              error: 'This email is already registered. Please sign in with email and password.',
+              isLoading: false
+            });
+          } else {
+            set({ 
+              error: 'This email is already associated with another sign-in method.',
+              isLoading: false
+            });
+          }
+        } else {
+          throw error;
+        }
+      }
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to sign in with GitHub',
