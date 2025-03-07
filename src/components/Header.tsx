@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Menu, X, Bug } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Menu, X, Bug, LogOut, User } from 'lucide-react';
 import { Logo } from './Logo';
+import { useAuthStore } from '../store/authStore';
 
 interface HeaderProps {
   onAboutClick: () => void;
@@ -9,6 +10,23 @@ interface HeaderProps {
 
 export function Header({ onAboutClick, onHomeClick }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const { user, logout } = useAuthStore();
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const profilePhotoUrl = user?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.email || 'User')}&background=0D9488&color=fff`;
 
   return (
     <header className="bg-gray-800 border-b border-gray-700">
@@ -39,9 +57,39 @@ export function Header({ onAboutClick, onHomeClick }: HeaderProps) {
               <Bug className="h-5 w-5" />
               <span>Report Bug</span>
             </a>
-            <button className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
-              Sign Up
-            </button>
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="flex items-center space-x-2 focus:outline-none"
+              >
+                <img
+                  src={profilePhotoUrl}
+                  alt={user?.email || 'User profile'}
+                  className="h-8 w-8 rounded-full border-2 border-transparent hover:border-primary-500 transition-colors"
+                />
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg py-1 z-50">
+                  <div className="px-4 py-2 border-b border-gray-600">
+                    <p className="text-sm text-white font-medium truncate">
+                      {user?.displayName || user?.email}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsProfileMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-600 flex items-center space-x-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -75,9 +123,23 @@ export function Header({ onAboutClick, onHomeClick }: HeaderProps) {
                 <Bug className="h-5 w-5" />
                 <span>Report Bug</span>
               </a>
-              <button className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors w-full text-left">
-                Sign Up
-              </button>
+              <div className="flex items-center justify-between py-1">
+                <div className="flex items-center space-x-2">
+                  <img
+                    src={profilePhotoUrl}
+                    alt={user?.email || 'User profile'}
+                    className="h-8 w-8 rounded-full"
+                  />
+                  <span className="text-gray-300">{user?.displayName || user?.email}</span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

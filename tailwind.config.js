@@ -52,14 +52,18 @@ export default {
         DEFAULT: {
           css: {
             color: theme('colors.gray.300'),
+            maxWidth: 'none',
             h1: {
               color: theme('colors.white'),
+              fontFamily: theme('fontFamily.serif'),
             },
             h2: {
               color: theme('colors.white'),
+              fontFamily: theme('fontFamily.serif'),
             },
             h3: {
               color: theme('colors.white'),
+              fontFamily: theme('fontFamily.serif'),
             },
             strong: {
               color: theme('colors.white'),
@@ -72,6 +76,9 @@ export default {
             },
             code: {
               color: theme('colors.primary.300'),
+              backgroundColor: theme('colors.gray.800'),
+              padding: '0.25rem 0.5rem',
+              borderRadius: '0.25rem',
             },
             'ol > li::before': {
               color: theme('colors.gray.400'),
@@ -85,6 +92,9 @@ export default {
             blockquote: {
               color: theme('colors.gray.300'),
               borderLeftColor: theme('colors.gray.700'),
+              backgroundColor: theme('colors.gray.800/50'),
+              padding: '1rem',
+              borderRadius: '0.5rem',
             },
             thead: {
               color: theme('colors.white'),
@@ -92,6 +102,41 @@ export default {
             },
             'tbody tr': {
               borderBottomColor: theme('colors.gray.700'),
+            },
+            figure: {
+              margin: '2rem 0',
+            },
+            'figure figcaption': {
+              color: theme('colors.gray.400'),
+              fontSize: '0.875rem',
+              textAlign: 'center',
+              marginTop: '0.5rem',
+            },
+            pre: {
+              backgroundColor: theme('colors.gray.800/50'),
+              border: `1px solid ${theme('colors.gray.700')}`,
+              borderRadius: '0.5rem',
+            },
+            table: {
+              width: '100%',
+              marginTop: '2rem',
+              marginBottom: '2rem',
+              borderCollapse: 'separate',
+              borderSpacing: 0,
+              borderRadius: '0.5rem',
+              overflow: 'hidden',
+              border: `1px solid ${theme('colors.gray.700')}`,
+            },
+            'th, td': {
+              padding: '1rem',
+              borderBottom: `1px solid ${theme('colors.gray.700')}`,
+              borderRight: `1px solid ${theme('colors.gray.700')}`,
+            },
+            'th:last-child, td:last-child': {
+              borderRight: 'none',
+            },
+            'tr:last-child td': {
+              borderBottom: 'none',
             },
           },
         },

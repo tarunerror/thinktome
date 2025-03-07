@@ -10,12 +10,12 @@ import { ResearchProgress } from './components/ResearchProgress';
 import { Footer } from './components/Footer';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsOfService } from './components/TermsOfService';
+import { AuthGuard } from './components/AuthGuard';
 import { usePaperGeneration } from './hooks/usePaperGeneration';
 import { useResearchProgress } from './hooks/useResearchProgress';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { fetchLatestArticles, fetchTrendingArticles } from './services/api/devto';
 import type { Topic, SavedSession, DevToArticle } from './types';
-import { researchTopics } from './topics';
 import { generateResearchTopics } from './services/api/topics';
 
 function App() {
@@ -197,28 +197,30 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
-      <Header 
-        onAboutClick={() => setShowAbout(true)}
-        onHomeClick={handleBackToHome}
-      />
-      <div className="flex flex-1">
-        <Sidebar
-          onNewSession={resetState}
-          onSessionSelect={handleSessionSelect}
-          onViewChange={setActiveView}
-          activeView={activeView}
-          isLoading={loading}
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-900 flex flex-col">
+        <Header 
+          onAboutClick={() => setShowAbout(true)}
+          onHomeClick={handleBackToHome}
         />
-        <main className="flex-1 overflow-x-hidden">
-          {renderContent()}
-        </main>
+        <div className="flex flex-1">
+          <Sidebar
+            onNewSession={resetState}
+            onSessionSelect={handleSessionSelect}
+            onViewChange={setActiveView}
+            activeView={activeView}
+            isLoading={loading}
+          />
+          <main className="flex-1 overflow-x-hidden">
+            {renderContent()}
+          </main>
+        </div>
+        <Footer 
+          onPrivacyClick={() => setShowPrivacy(true)}
+          onTermsClick={() => setShowTerms(true)}
+        />
       </div>
-      <Footer 
-        onPrivacyClick={() => setShowPrivacy(true)}
-        onTermsClick={() => setShowTerms(true)}
-      />
-    </div>
+    </AuthGuard>
   );
 }
 
