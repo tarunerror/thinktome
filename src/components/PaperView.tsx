@@ -31,18 +31,34 @@ export function PaperView({
         onClick={onBack}
         className="mb-4 md:mb-6 flex items-center text-gray-300 hover:text-white transition-colors"
       >
-        <ArrowLeft className="h-5 w-5 mr-2" />
-        Back to Topics
+        <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+        <span className="text-sm sm:text-base">Back to Topics</span>
       </button>
-      <div className="bg-gray-800 rounded-xl shadow-xl border border-gray-700">
+      <div className="bg-gray-800 rounded-lg sm:rounded-xl shadow-xl border border-gray-700">
         <div className="grid grid-cols-1 md:grid-cols-4 min-h-[600px]">
-          <TableOfContents
-            items={tableOfContents}
-            selectedSection={selectedSection}
-            expandedSections={expandedSections}
-            onSectionSelect={onSectionSelect}
-            onSectionToggle={onSectionToggle}
-          />
+          <div className="md:hidden p-4 border-b border-gray-700">
+            <h2 className="text-lg font-semibold text-white mb-2">Table of Contents</h2>
+            <select
+              value={selectedSection || ''}
+              onChange={(e) => onSectionSelect(e.target.value)}
+              className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-3"
+            >
+              {tableOfContents.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.title}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="hidden md:block">
+            <TableOfContents
+              items={tableOfContents}
+              selectedSection={selectedSection}
+              expandedSections={expandedSections}
+              onSectionSelect={onSectionSelect}
+              onSectionToggle={onSectionToggle}
+            />
+          </div>
           <PaperContent
             topic={topic}
             selectedSection={selectedSection}

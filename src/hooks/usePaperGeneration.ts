@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { generatePaper, fetchWikiData } from '../services/api';
 import type { ResearchSource, TableOfContentsItem, ResearchProgress, ActiveView } from '../types';
 import { parsePaperSections } from '../utils/paper';
+import { getResearchTemplate } from '../utils/researchTemplates';
 
 export function usePaperGeneration() {
   const [topic, setTopic] = useState('');
@@ -37,46 +38,8 @@ export function usePaperGeneration() {
       const sections = parsePaperSections(generatedPaper);
       setPaperSections(sections);
       
-      setTableOfContents([
-        { id: 'abstract', title: 'Abstract', level: 1 },
-        {
-          id: 'introduction',
-          title: 'Introduction',
-          level: 1,
-          children: [
-            { id: 'background', title: 'Background', level: 2 },
-            { id: 'literature-review', title: 'Literature Review', level: 2 },
-            { id: 'research-objectives', title: 'Research Objectives', level: 2 }
-          ]
-        },
-        {
-          id: 'methodology',
-          title: 'Methodology',
-          level: 1,
-          children: [
-            { id: 'data-collection', title: 'Data Collection', level: 2 },
-            { id: 'analysis-methods', title: 'Analysis Methods', level: 2 }
-          ]
-        },
-        {
-          id: 'results-and-discussion',
-          title: 'Results and Discussion',
-          level: 1,
-          children: [
-            { id: 'findings', title: 'Findings', level: 2 },
-            { id: 'implications', title: 'Implications', level: 2 }
-          ]
-        },
-        {
-          id: 'conclusion',
-          title: 'Conclusion',
-          level: 1,
-          children: [
-            { id: 'future-work', title: 'Future Work', level: 2 }
-          ]
-        },
-        { id: 'references', title: 'References', level: 1 }
-      ]);
+      const template = getResearchTemplate(topicToUse);
+      setTableOfContents(template.sections);
 
       setSelectedSection('abstract');
       setActiveView('paper');

@@ -7,15 +7,21 @@ import { PaperView } from './components/PaperView';
 import { DiscoverPage } from './components/DiscoverPage';
 import { LibraryPage } from './components/LibraryPage';
 import { ResearchProgress } from './components/ResearchProgress';
+import { Footer } from './components/Footer';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { TermsOfService } from './components/TermsOfService';
 import { usePaperGeneration } from './hooks/usePaperGeneration';
 import { useResearchProgress } from './hooks/useResearchProgress';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { fetchLatestArticles, fetchTrendingArticles } from './services/api/devto';
 import type { Topic, SavedSession, DevToArticle } from './types';
 import { researchTopics } from './topics';
+import { generateResearchTopics } from './services/api/topics';
 
 function App() {
   const [showAbout, setShowAbout] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [displayedTopics, setDisplayedTopics] = useState<Topic[]>([]);
   const [savedSessions, setSavedSessions] = useLocalStorage<SavedSession[]>('research_sessions', []);
   const [latestArticles, setLatestArticles] = useState<DevToArticle[]>([]);
@@ -44,13 +50,20 @@ function App() {
   const researchProgress = useResearchProgress(loading, sources);
 
   useEffect(() => {
-    const shuffleTopics = () => {
-      const shuffled = [...researchTopics].sort(() => Math.random() - 0.5);
-      setDisplayedTopics(shuffled.slice(0, 3));
+    const fetchTopics = async () => {
+      try {
+        const topics = await generateResearchTopics();
+        setDisplayedTopics(topics);
+      } catch (error) {
+        console.error('Error fetching topics:', error);
+        // Fallback to static topics if API fails
+        const shuffled = [...researchTopics].sort(() => Math.random() - 0.5);
+        setDisplayedTopics(shuffled.slice(0, 3));
+      }
     };
     
-    shuffleTopics();
-    const interval = setInterval(shuffleTopics, 30000);
+    fetchTopics();
+    const interval = setInterval(fetchTopics, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -108,9 +121,19 @@ function App() {
 
   const handleBackToHome = () => {
     setShowAbout(false);
+    setShowPrivacy(false);
+    setShowTerms(false);
     resetState();
     setActiveView('home');
   };
+
+  if (showPrivacy) {
+    return <PrivacyPolicy onBack={handleBackToHome} />;
+  }
+
+  if (showTerms) {
+    return <TermsOfService onBack={handleBackToHome} />;
+  }
 
   if (showAbout) {
     return <AboutUs onBack={handleBackToHome} />;
@@ -174,12 +197,12 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
       <Header 
         onAboutClick={() => setShowAbout(true)}
         onHomeClick={handleBackToHome}
       />
-      <div className="flex">
+      <div className="flex flex-1">
         <Sidebar
           onNewSession={resetState}
           onSessionSelect={handleSessionSelect}
@@ -187,10 +210,14 @@ function App() {
           activeView={activeView}
           isLoading={loading}
         />
-        <main className="flex-1">
+        <main className="flex-1 overflow-x-hidden">
           {renderContent()}
         </main>
       </div>
+      <Footer 
+        onPrivacyClick={() => setShowPrivacy(true)}
+        onTermsClick={() => setShowTerms(true)}
+      />
     </div>
   );
 }

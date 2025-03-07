@@ -4,22 +4,47 @@ export function parsePaperSections(content: string) {
   let currentContent: string[] = [];
 
   content.split('\n').forEach(line => {
-    const sectionMatch = line.match(/^(Abstract|Introduction|Background|Research Objectives|Literature Review|Methodology|Data Collection|Analysis Methods|Results and Discussion|Findings|Implications|Conclusion|Future Work|References)/i);
+    // Match section titles (lines starting with #)
+    const sectionMatch = line.match(/^#\s+(.+)$/);
     
     if (sectionMatch) {
+      // Save previous section if it exists
       if (currentSection) {
-        sections[currentSection.toLowerCase().replace(/\s+/g, '-')] = currentContent.join('\n');
+        const sectionKey = currentSection.toLowerCase().replace(/\s+/g, '-');
+        sections[sectionKey] = currentContent.join('\n').trim();
       }
-      currentSection = sectionMatch[1];
+      currentSection = sectionMatch[1].trim();
       currentContent = [];
     } else {
-      currentContent.push(line);
+      // Only add non-empty lines to avoid extra whitespace
+      if (line.trim()) {
+        currentContent.push(line);
+      }
     }
   });
 
+  // Save the last section
   if (currentSection) {
-    sections[currentSection.toLowerCase().replace(/\s+/g, '-')] = currentContent.join('\n');
+    const sectionKey = currentSection.toLowerCase().replace(/\s+/g, '-');
+    sections[sectionKey] = currentContent.join('\n').trim();
   }
+
+  // Ensure all sections exist with at least empty content
+  const requiredSections = [
+    'abstract',
+    'introduction',
+    'methodology',
+    'results',
+    'discussion',
+    'conclusion',
+    'references'
+  ];
+
+  requiredSections.forEach(section => {
+    if (!sections[section]) {
+      sections[section] = '';
+    }
+  });
 
   return sections;
 }

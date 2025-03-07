@@ -1,10 +1,23 @@
-export interface Stat {
-  label: string;
-  value: number;
-  suffix?: string;
-  decimals?: number;
-  icon: React.ReactNode;
-  color: string;
-}
+// ... existing types
 
-// ... rest of the existing types
+export type ResearchType = 
+  | 'basic'
+  | 'experimental'
+  | 'qualitative'
+  | 'review'
+  | 'thesis'
+  | 'scientific';
+
+export interface ResearchTemplate {
+  type: ResearchType;
+  sections: {
+    id: string;
+    title: string;
+    level: number;
+    children?: Array<{
+      id: string;
+      title: string;
+      level: number;
+    }>;
+  }[];
+}

@@ -38,66 +38,65 @@ export function Sidebar({ onNewSession, onSessionSelect, onViewChange, activeVie
 
   return (
     <div className={`relative bg-gray-800 border-r border-gray-700 transition-all duration-300 ${
-      isCollapsed ? 'w-16' : 'w-64'
+      isCollapsed ? 'w-12 sm:w-14 md:w-16' : 'w-16 sm:w-20 md:w-64'
     }`}>
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-4 bg-gray-700 rounded-full p-1 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
+        className="absolute -right-2.5 sm:-right-3 top-4 bg-gray-700 rounded-full p-0.5 sm:p-1 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors z-10"
       >
-        {isCollapsed ? <ChevronDoubleRight className="h-4 w-4" /> : <ChevronDoubleLeft className="h-4 w-4" />}
+        {isCollapsed ? 
+          <ChevronDoubleRight className="h-3 w-3 sm:h-4 sm:w-4" /> : 
+          <ChevronDoubleLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+        }
       </button>
 
-      <div className="h-screen flex flex-col">
-        <div className="p-4">
+      <div className="h-[calc(100vh-3.5rem)] flex flex-col">
+        <div className="p-2 sm:p-3 md:p-4">
           <button
             onClick={onNewSession}
             disabled={isLoading}
-            className={`flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors w-full ${
+            className={`flex items-center gap-1.5 sm:gap-2 bg-primary-500 hover:bg-primary-600 text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg transition-colors w-full ${
               isCollapsed ? 'justify-center' : ''
             } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <PlusCircle className="h-6 w-6 flex-shrink-0" />
-            {!isCollapsed && <span>New Session</span>}
+            <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+            {!isCollapsed && <span className="hidden md:inline text-sm">New Session</span>}
           </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto">
-          <div className="px-3 py-2">
+          <div className="px-1.5 sm:px-2 md:px-3 py-1">
             <button
               onClick={() => toggleSection('discover')}
               disabled={isLoading}
-              className={`w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 rounded-lg transition-colors ${
+              className={`w-full flex items-center justify-between text-gray-300 hover:text-white px-2 py-1.5 sm:py-2 rounded-lg transition-colors ${
                 activeView === 'discover' ? 'bg-gray-700' : ''
               } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <div className="flex items-center gap-2">
-                <Compass className="h-6 w-6 flex-shrink-0" />
-                {!isCollapsed && <span>Discover</span>}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Compass className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                {!isCollapsed && <span className="hidden md:inline text-sm">Discover</span>}
               </div>
               {!isCollapsed && (
-                expandedSections.has('discover') ? 
-                <ChevronDown className="h-5 w-5" /> : 
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="hidden md:block h-4 w-4" />
               )}
             </button>
           </div>
 
-          <div className="px-3 py-2">
+          <div className="px-1.5 sm:px-2 md:px-3 py-1">
             <button
               onClick={() => toggleSection('library')}
               disabled={isLoading}
-              className={`w-full flex items-center justify-between text-gray-300 hover:text-white px-3 py-2 rounded-lg transition-colors ${
+              className={`w-full flex items-center justify-between text-gray-300 hover:text-white px-2 py-1.5 sm:py-2 rounded-lg transition-colors ${
                 activeView === 'library' ? 'bg-gray-700' : ''
               } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <div className="flex items-center gap-2">
-                <Library className="h-6 w-6 flex-shrink-0" />
-                {!isCollapsed && <span>My Library</span>}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Library className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                {!isCollapsed && <span className="hidden md:inline text-sm">My Library</span>}
               </div>
               {!isCollapsed && (
-                expandedSections.has('library') ? 
-                <ChevronDown className="h-5 w-5" /> : 
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="hidden md:block h-4 w-4" />
               )}
             </button>
           </div>

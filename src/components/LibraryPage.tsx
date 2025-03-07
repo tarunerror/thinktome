@@ -9,31 +9,43 @@ interface LibraryPageProps {
 
 export function LibraryPage({ sessions, onSessionSelect }: LibraryPageProps) {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-white mb-8">My Library</h1>
-      
-      {sessions.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-400 text-lg">No saved research papers yet.</p>
-          <p className="text-gray-500 mt-2">Generate a paper to see it here!</p>
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {sessions.map((session) => (
-            <button
-              key={session.id}
-              onClick={() => onSessionSelect(session)}
-              className="block text-left bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors w-full"
-            >
-              <h3 className="text-white font-medium mb-2">{session.topic}</h3>
-              <div className="flex items-center text-sm text-gray-400">
-                <Clock className="h-4 w-4 mr-2" />
-                <span>{new Date(session.createdAt).toLocaleDateString()}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+    <div className="min-h-screen w-full">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6">
+          My Library
+        </h1>
+        
+        {sessions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-4 sm:p-6">
+            <div className="max-w-sm mx-auto space-y-2">
+              <h2 className="text-lg sm:text-xl text-gray-300 font-medium">
+                No saved research papers yet.
+              </h2>
+              <p className="text-sm sm:text-base text-gray-400">
+                Generate a paper to see it here!
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-2 sm:gap-3">
+            {sessions.map((session) => (
+              <button
+                key={session.id}
+                onClick={() => onSessionSelect(session)}
+                className="w-full text-left bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-3 sm:p-4 hover:bg-gray-700/50 hover:border-gray-600 transition-all duration-200"
+              >
+                <h3 className="text-sm sm:text-base font-medium text-white mb-2 line-clamp-2">
+                  {session.topic}
+                </h3>
+                <div className="flex items-center text-xs sm:text-sm text-gray-400">
+                  <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+                  <span>{new Date(session.createdAt).toLocaleDateString()}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
