@@ -219,4 +219,4 @@ For support, please:
 
 Created with dedication by [Tarun Gautam](https://github.com/tarunerror)
 
-Copyright © 2024 ThinkTome. All rights reserved.
+Copyright © 2025 ThinkTome. All rights reserved.
