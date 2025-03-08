@@ -1,100 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- SEO Meta Tags -->
-    <title>ThinkTome - AI Research Paper Generator | Academic Writing Assistant</title>
-    <meta name="description" content="Generate AI-powered research papers in minutes with ThinkTome. Access 100M+ academic sources, smart templates, and automated APA/MLA citations. Perfect for students and researchers.">
-    <meta name="keywords" content="AI research paper generator, academic writing assistant, automated citation generator, paper writing template, scholarly article writer, thesis generator">
-    <meta name="author" content="Tarun Gautam">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://thinktome.netlify.app/" />
-
+    <!-- Primary Meta Tags -->
+    <title>ThinkTome - AI-Powered Research Paper Generator</title>
+    <meta name="title" content="ThinkTome - AI-Powered Research Paper Generator">
+    <meta name="description" content="Generate comprehensive research papers in minutes using advanced AI. Access global academic sources, smart templates, and automated citations.">
+    <meta name="keywords" content="research paper generator, AI writing, academic writing, research assistant, paper templates">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://thinktome.netlify.app/">
-    <meta property="og:title" content="ThinkTome - AI Research Paper Generator | Academic Writing Assistant">
-    <meta property="og:description" content="Generate AI-powered research papers in minutes with ThinkTome. Access 100M+ academic sources, smart templates, and automated APA/MLA citations.">
-    <meta property="og:image" content="https://thinktome.netlify.app/social-preview.jpg">
+    <meta property="og:title" content="ThinkTome - AI-Powered Research Paper Generator">
+    <meta property="og:description" content="Generate comprehensive research papers in minutes using advanced AI. Access global academic sources, smart templates, and automated citations.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=1200&h=630&fit=crop">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://thinktome.netlify.app/">
-    <meta property="twitter:title" content="ThinkTome - AI Research Paper Generator | Academic Writing Assistant">
-    <meta property="twitter:description" content="Generate AI-powered research papers in minutes with ThinkTome. Access 100M+ academic sources, smart templates, and automated citations.">
-    <meta property="twitter:image" content="https://thinktome.netlify.app/social-preview.jpg">
-
-    <!-- Assets -->
-    <link rel="icon" href="/logo.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
-
+    <meta property="twitter:title" content="ThinkTome - AI-Powered Research Paper Generator">
+    <meta property="twitter:description" content="Generate comprehensive research papers in minutes using advanced AI. Access global academic sources, smart templates, and automated citations.">
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=1200&h=630&fit=crop">
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Structured Data -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "ThinkTome",
-      "operatingSystem": "Web",
-      "applicationCategory": "EducationalApplication",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "1500"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "image": "https://thinktome.netlify.app/social-preview.jpg",
-      "description": "AI-powered research paper generator with academic database integration and automated citations.",
-      "keywords": "research paper generator, academic writing, AI thesis writer",
-      "author": {
-        "@type": "Person",
-        "name": "Tarun Gautam"
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "ThinkTome",
+        "description": "AI-powered research paper generator that helps researchers and students create comprehensive academic papers.",
+        "url": "https://thinktome.netlify.app/",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0"
+        },
+        "featureList": [
+          "AI-powered paper generation",
+          "Multiple research paper templates",
+          "Academic source integration",
+          "Automated citations",
+          "Real-time progress tracking"
+        ]
       }
-    }
     </script>
 
-    <!-- Performance Optimization -->
-    <link rel="preload" as="image" href="/logo.svg">
-    <style>
-      /* Critical CSS */
-      body { 
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        line-height: 1.6;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://thinktome.netlify.app/" />
+
+    <!-- Additional Meta Tags -->
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Tarun Gautam">
+    <meta name="theme-color" content="#0ea5e9">
+
+    <script>
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+          if (!user) {
+            window.netlifyIdentity.on("login", () => {
+              document.location.href = "/";
+            });
+          }
+        });
       }
-      #root {
-        flex: 1;
-        width: 100%;
-        max-width: 1440px;
-        margin: 0 auto;
-      }
-    </style>
+    </script>
   </head>
 
   <body class="antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-
-    <!-- Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXX');
-    </script>
   </body>
 </html>
