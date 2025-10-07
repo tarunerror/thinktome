@@ -1,0 +1,2 @@
+# Ignore API folder during Vite build
+/api

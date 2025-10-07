@@ -1,7 +1,8 @@
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Shield } from 'lucide-react';
 import { TableOfContents } from './TableOfContents';
 import { PaperContent } from './PaperContent';
+import { ContentIntegrityChecker } from './ContentIntegrityChecker';
 import { Helmet } from 'react-helmet-async';
 import type { TableOfContentsItem } from '../types';
 
@@ -26,8 +27,12 @@ export function PaperView({
   onSectionSelect,
   onSectionToggle
 }: PaperViewProps) {
+  const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
   const abstract = paperSections['abstract'] || '';
   const firstParagraph = abstract.split('\n')[0] || '';
+  
+  // Get full paper content
+  const fullPaper = Object.values(paperSections).join('\n\n');
 
   return (
     <>
@@ -62,13 +67,34 @@ export function PaperView({
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-        <button
-          onClick={onBack}
-          className="mb-4 md:mb-6 flex items-center text-gray-300 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-          <span className="text-sm sm:text-base">Back to Topics</span>
-        </button>
+        <div className="flex justify-between items-center mb-4 md:mb-6">
+          <button
+            onClick={onBack}
+            className="flex items-center text-gray-300 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+            <span className="text-sm sm:text-base">Back to Topics</span>
+          </button>
+          
+          <button
+            onClick={() => setShowIntegrityChecker(!showIntegrityChecker)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+          >
+            <Shield className="h-4 w-4" />
+            <span>Content Integrity</span>
+          </button>
+        </div>
+
+        {showIntegrityChecker && (
+          <div className="mb-6">
+            <ContentIntegrityChecker
+              content={fullPaper}
+              sources={[]}
+              autoCheck={true}
+            />
+          </div>
+        )}
+        
         <div className="bg-gray-800 rounded-lg sm:rounded-xl shadow-xl border border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-4 min-h-[600px]">
             <div className="md:hidden p-4 border-b border-gray-700">

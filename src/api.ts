@@ -1,7 +1,62 @@
 import MistralClient from '@mistralai/mistralai';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
-import type { WikiResponse, MistralResponse, ResearchSource, ResearchImage, AcademicSource } from './types';
+import type { ResearchSource, ResearchImage } from './types';
+
+interface AcademicSource {
+  title: string;
+  authors: string[];
+  abstract: string;
+  url: string;
+  source: string;
+  year: number;
+  status: 'pending' | 'completed' | 'failed';
+}
+
+interface WikiSearchResult {
+  title: string;
+  snippet?: string;
+}
+
+interface WikiResponse {
+  query: {
+    search: WikiSearchResult[];
+  };
+}
+
+interface WikiPage {
+  extract?: string;
+}
+
+interface WikiContentResponse {
+  query: {
+    pages: Record<string, WikiPage>;
+  };
+}
+
+interface ArxivAuthor {
+  name: string;
+}
+
+interface ArxivEntry {
+  title: string;
+  author: ArxivAuthor | ArxivAuthor[];
+  summary: string;
+  id: string;
+  published: string;
+}
+
+interface SemanticScholarAuthor {
+  name: string;
+}
+
+interface SemanticScholarPaper {
+  title: string;
+  authors?: SemanticScholarAuthor[];
+  abstract: string;
+  url: string;
+  year: number;
+}
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -12,6 +67,7 @@ const WIKIMEDIA_API_URL = 'https://en.wikipedia.org/w/api.php';
 const ARXIV_API_URL = 'https://export.arxiv.org/api/query';
 const PUBMED_API_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
 const SEMANTIC_SCHOLAR_API_URL = 'https://api.semanticscholar.org/graph/v1/paper/search';
+const GOOGLE_SCHOLAR_SEARCH_URL = 'https://scholar.google.com/scholar';
 
 const mistral = new MistralClient(import.meta.env.VITE_MISTRAL_API_KEY);
 
@@ -53,10 +109,10 @@ async function fetchArxivPapers(topic: string): Promise<AcademicSource[]> {
     const entries = result.feed?.entry || [];
     const entriesArray = Array.isArray(entries) ? entries : [entries];
 
-    return entriesArray.map((entry: any) => ({
+    return entriesArray.map((entry: ArxivEntry) => ({
       title: entry.title || '',
       authors: Array.isArray(entry.author) 
-        ? entry.author.map((a: any) => a.name || '') 
+        ? entry.author.map((a: ArxivAuthor) => a.name || '') 
         : entry.author ? [entry.author.name || ''] : [],
       abstract: entry.summary || '',
       url: entry.id || '',
@@ -84,7 +140,7 @@ async function fetchPubMedPapers(topic: string): Promise<AcademicSource[]> {
     });
 
     const ids = searchResponse.data.esearchresult?.idlist || [];
-    const sources: AcademicSource[] = ids.map(id => ({
+    const sources: AcademicSource[] = ids.map((id: string) => ({
       title: `PubMed Article ${id}`,
       authors: [],
       abstract: '',
@@ -116,9 +172,9 @@ async function fetchSemanticScholarPapers(topic: string): Promise<AcademicSource
       timeout: 10000
     });
 
-    return (response.data.data || []).map((paper: any) => ({
+    return (response.data.data || []).map((paper: SemanticScholarPaper) => ({
       title: paper.title || '',
-      authors: paper.authors?.map((a: any) => a.name || '') || [],
+      authors: paper.authors?.map((a: SemanticScholarAuthor) => a.name || '') || [],
       abstract: paper.abstract || '',
       url: paper.url || '',
       source: 'Semantic Scholar',
@@ -128,6 +184,57 @@ async function fetchSemanticScholarPapers(topic: string): Promise<AcademicSource
   } catch (error) {
     const serializedError = serializeError(error);
     console.error('Error fetching from Semantic Scholar:', serializedError);
+    return [];
+  }
+}
+
+async function fetchGoogleScholarPapers(topic: string): Promise<AcademicSource[]> {
+  try {
+    // Google Scholar doesn't have a public API, so we'll create reference links
+    // For actual scraping, you would need to use a service like SerpAPI or ScraperAPI
+    const scholarUrl = `${GOOGLE_SCHOLAR_SEARCH_URL}?q=${encodeURIComponent(topic)}`;
+    
+    // Return a reference to Google Scholar search
+    const scholarResults: AcademicSource[] = [{
+      title: `Google Scholar: ${topic}`,
+      authors: [],
+      abstract: `Search results for "${topic}" on Google Scholar`,
+      url: scholarUrl,
+      source: 'Google Scholar',
+      year: new Date().getFullYear(),
+      status: 'completed' as const
+    }];
+
+    // If you have SerpAPI key, you can uncomment and use this:
+    // const SERPAPI_KEY = import.meta.env.VITE_SERPAPI_KEY;
+    // if (SERPAPI_KEY) {
+    //   const response = await axios.get('https://serpapi.com/search', {
+    //     params: {
+    //       engine: 'google_scholar',
+    //       q: topic,
+    //       api_key: SERPAPI_KEY,
+    //       num: 5
+    //     },
+    //     timeout: 10000
+    //   });
+    //   
+    //   return (response.data.organic_results || []).map((result: any) => ({
+    //     title: result.title || '',
+    //     authors: result.publication_info?.authors?.map((a: any) => a.name).filter(Boolean) || [],
+    //     abstract: result.snippet || '',
+    //     url: result.link || scholarUrl,
+    //     source: 'Google Scholar',
+    //     year: result.publication_info?.summary?.match(/\d{4}/)?.[0] 
+    //           ? parseInt(result.publication_info.summary.match(/\d{4}/)[0]) 
+    //           : new Date().getFullYear(),
+    //     status: 'completed' as const
+    //   }));
+    // }
+
+    return scholarResults;
+  } catch (error) {
+    const serializedError = serializeError(error);
+    console.error('Error fetching from Google Scholar:', serializedError);
     return [];
   }
 }
@@ -157,11 +264,17 @@ Use this context: ${context}`
   return prompts[section] || `Write about ${section} for a research paper on "${topic}". Use these sources:\n\n${sourceContext}`;
 };
 
-const extractJSONFromText = (text: string): any[] => {
+interface ImageSuggestion {
+  title: string;
+  description: string;
+  type: string;
+}
+
+const extractJSONFromText = (text: string): ImageSuggestion[] => {
   try {
     const cleanedText = text.replace(/```json\s*|\s*```/g, '').trim();
     return JSON.parse(cleanedText);
-  } catch (e) {
+  } catch {
     try {
       const matches = text.match(/\[[\s\S]*?\]/g);
       if (!matches) return [];
@@ -201,8 +314,8 @@ Response must be a valid JSON array only.`
         }
       ],
       temperature: 0.7,
-      max_tokens: 1000,
-      top_p: 0.95
+      maxTokens: 1000,
+      topP: 0.95
     });
 
     const content = response.choices[0].message.content;
@@ -268,16 +381,18 @@ export const generatePaper = async (topic: string, wikiSummary: string): Promise
   }
 
   try {
-    const [arxivPapers, pubmedPapers, semanticScholarPapers] = await Promise.all([
+    const [arxivPapers, pubmedPapers, semanticScholarPapers, googleScholarPapers] = await Promise.all([
       fetchArxivPapers(topic),
       fetchPubMedPapers(topic),
-      fetchSemanticScholarPapers(topic)
+      fetchSemanticScholarPapers(topic),
+      fetchGoogleScholarPapers(topic)
     ]);
 
     const academicSources = [
       ...arxivPapers,
       ...pubmedPapers,
-      ...semanticScholarPapers
+      ...semanticScholarPapers,
+      ...googleScholarPapers
     ];
 
     const sections = [
@@ -303,8 +418,8 @@ export const generatePaper = async (topic: string, wikiSummary: string): Promise
           }
         ],
         temperature: 0.7,
-        max_tokens: 1000,
-        top_p: 0.95
+        maxTokens: 1000,
+        topP: 0.95
       });
 
       if (!response?.choices?.[0]?.message?.content) {
@@ -324,8 +439,8 @@ export const generatePaper = async (topic: string, wikiSummary: string): Promise
           }
         ],
         temperature: 0.7,
-        max_tokens: 1000,
-        top_p: 0.95
+        maxTokens: 1000,
+        topP: 0.95
       }),
       generateImageDescription(topic)
     ]);
@@ -398,8 +513,8 @@ export const fetchWikiData = async (topic: string): Promise<{ summary: string; s
       wikiResponse.data = broadSearchResponse.data;
     }
 
-    const articlePromises = wikiResponse.data.query.search.map(async (result) => {
-      const contentResponse = await axios.get<any>(`${WIKIMEDIA_API_URL}?${new URLSearchParams({
+    const articlePromises = wikiResponse.data.query.search.map(async (result: WikiSearchResult) => {
+      const contentResponse = await axios.get<WikiContentResponse>(`${WIKIMEDIA_API_URL}?${new URLSearchParams({
         action: 'query',
         format: 'json',
         titles: result.title,
@@ -416,7 +531,7 @@ export const fetchWikiData = async (topic: string): Promise<{ summary: string; s
 
     const articles = await Promise.all(articlePromises);
     const summaries = articles
-      .map((article: any) => article.extract)
+      .map((article: WikiPage) => article.extract)
       .filter(Boolean)
       .slice(0, 3) // Take only the top 3 most relevant summaries
       .join('\n\n');
@@ -441,7 +556,12 @@ export const fetchWikiData = async (topic: string): Promise<{ summary: string; s
 };
 
 async function fetchInitialSources(topic: string): Promise<ResearchSource[]> {
-  const arxivPapers = await fetchArxivPapers(topic);
+  const [arxivPapers, pubmedPapers, semanticScholarPapers, googleScholarPapers] = await Promise.all([
+    fetchArxivPapers(topic),
+    fetchPubMedPapers(topic),
+    fetchSemanticScholarPapers(topic),
+    fetchGoogleScholarPapers(topic)
+  ]);
   
   return [
     ...arxivPapers.map(paper => ({
@@ -449,20 +569,35 @@ async function fetchInitialSources(topic: string): Promise<ResearchSource[]> {
       url: paper.url,
       status: 'completed' as const
     })),
+    ...pubmedPapers.map(paper => ({
+      title: `PubMed: ${paper.title}`,
+      url: paper.url,
+      status: 'completed' as const
+    })),
+    ...semanticScholarPapers.map(paper => ({
+      title: `Semantic Scholar: ${paper.title}`,
+      url: paper.url,
+      status: 'completed' as const
+    })),
+    ...googleScholarPapers.map(paper => ({
+      title: `Google Scholar: ${paper.title}`,
+      url: paper.url,
+      status: 'completed' as const
+    })),
     {
       title: 'IEEE Xplore Digital Library',
       url: `https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=${encodeURIComponent(topic)}`,
-      status: 'processing' as const
+      status: 'pending' as const
     },
     {
       title: 'SpringerLink Research Papers',
       url: `https://link.springer.com/search?query=${encodeURIComponent(topic)}`,
-      status: 'processing' as const
+      status: 'pending' as const
     },
     {
       title: 'ScienceDirect Publications',
       url: `https://www.sciencedirect.com/search?qs=${encodeURIComponent(topic)}`,
-      status: 'processing' as const
+      status: 'pending' as const
     },
     {
       title: 'JSTOR Academic Articles',

@@ -1,8 +1,34 @@
 import { useState } from 'react';
 import { generatePaper, fetchWikiData } from '../services/api';
-import type { ResearchSource, TableOfContentsItem, ResearchProgress, ActiveView } from '../types';
+import type { ResearchSource, TableOfContentsItem } from '../types';
 import { parsePaperSections } from '../utils/paper';
 import { getResearchTemplate } from '../utils/researchTemplates';
+
+interface PlagiarismResult {
+  similarity: number;
+  matches: Array<{
+    text: string;
+    source: string;
+    similarity: number;
+    startIndex: number;
+    endIndex: number;
+  }>;
+  overallScore: number;
+  isPlagiarized: boolean;
+}
+
+interface AIDetectionResult {
+  aiProbability: number;
+  humanProbability: number;
+  indicators: Array<{
+    name: string;
+    score: number;
+    severity: 'low' | 'medium' | 'high';
+    description: string;
+  }>;
+  overallClassification: 'human' | 'likely-human' | 'uncertain' | 'likely-ai' | 'ai';
+  suggestions: string[];
+}
 
 export function usePaperGeneration() {
   const [topic, setTopic] = useState('');
@@ -14,7 +40,11 @@ export function usePaperGeneration() {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [paperSections, setPaperSections] = useState<Record<string, string>>({});
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['introduction']));
-  const [activeView, setActiveView] = useState<ActiveView>('home');
+  const [contentIntegrity, setContentIntegrity] = useState<{
+    plagiarism: PlagiarismResult;
+    aiDetection: AIDetectionResult;
+    isAcceptable: boolean;
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent | null, selectedTopic?: string) => {
     if (e) e.preventDefault();
@@ -42,7 +72,6 @@ export function usePaperGeneration() {
       setTableOfContents(template.sections);
 
       setSelectedSection('abstract');
-      setActiveView('paper');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
     } finally {
@@ -70,7 +99,6 @@ export function usePaperGeneration() {
     setPaperSections({});
     setSelectedSection(null);
     setError(null);
-    setActiveView('home');
   };
 
   return {
@@ -85,10 +113,10 @@ export function usePaperGeneration() {
     setSelectedSection,
     paperSections,
     expandedSections,
-    activeView,
-    setActiveView,
     handleSubmit,
     toggleSection,
-    resetState
+    resetState,
+    contentIntegrity,
+    setContentIntegrity,
   };
 }

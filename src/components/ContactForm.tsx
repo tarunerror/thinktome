@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import { Send, Loader2, CheckCircle, XCircle } from 'lucide-react';
-import emailjs from '@emailjs/browser';
 
 interface FormStatus {
   type: 'idle' | 'loading' | 'success' | 'error';
@@ -17,20 +16,38 @@ export function ContactForm() {
 
     setStatus({ type: 'loading' });
 
-    try {
-      await emailjs.sendForm(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-        formRef.current,
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-      );
+    const formData = new FormData(formRef.current);
+    const payload = {
+      from_name: formData.get('from_name'),
+      reply_to: formData.get('reply_to'),
+      subject: formData.get('subject'),
+      message: formData.get('message'),
+    };
 
-      setStatus({ 
-        type: 'success', 
-        message: 'Message sent successfully! We will get back to you soon.' 
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
-      formRef.current.reset();
-    } catch (error) {
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setStatus({ 
+          type: 'success', 
+          message: 'Message sent successfully! We will get back to you soon.' 
+        });
+        formRef.current.reset();
+      } else {
+        setStatus({ 
+          type: 'error', 
+          message: data.error || 'Failed to send message. Please try again later.' 
+        });
+      }
+    } catch {
       setStatus({ 
         type: 'error', 
         message: 'Failed to send message. Please try again later.' 

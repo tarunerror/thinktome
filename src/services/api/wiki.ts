@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { WikiResponse, ResearchSource } from '../../types';
+import type { WikiResponse, WikiPage, WikiSearchResult, ResearchSource } from '../../types';
 import { sanitizeText } from '../../utils/text';
 import { serializeError } from '../../utils/errors';
 import { fetchInitialSources } from './sources';
@@ -56,9 +56,9 @@ export const fetchWikiData = async (topic: string): Promise<{ summary: string; s
       wikiResponse.data = broadSearchResponse.data;
     }
 
-    const articlePromises = wikiResponse.data.query.search.map(async (result) => {
+    const articlePromises = wikiResponse.data.query.search.map(async (result: WikiSearchResult) => {
       try {
-        const contentResponse = await wikiAxios.get<any>(`${WIKIMEDIA_API_URL}?${new URLSearchParams({
+        const contentResponse = await wikiAxios.get<{ query: { pages: Record<string, WikiPage> } }>(`${WIKIMEDIA_API_URL}?${new URLSearchParams({
           action: 'query',
           format: 'json',
           titles: encodeURIComponent(result.title),
@@ -77,9 +77,9 @@ export const fetchWikiData = async (topic: string): Promise<{ summary: string; s
       }
     });
 
-    const articles = (await Promise.all(articlePromises)).filter(Boolean);
+    const articles = (await Promise.all(articlePromises)).filter((article): article is WikiPage => article !== null);
     const summaries = articles
-      .map((article: any) => article.extract)
+      .map((article) => article.extract)
       .filter(Boolean)
       .slice(0, 3)
       .join('\n\n');

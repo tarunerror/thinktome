@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
-import { PlusCircle, Compass, Library, ChevronRight, ChevronDown, ChevronLeft as ChevronDoubleLeft, ChevronRight as ChevronDoubleRight } from 'lucide-react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import type { SavedSession, ActiveView } from '../types';
+import { useState } from 'react';
+import { PlusCircle, Compass, Library, ChevronLeft as ChevronDoubleLeft, ChevronRight as ChevronDoubleRight } from 'lucide-react';
+import type { ActiveView } from '../types';
 
 interface SidebarProps {
   onNewSession: () => void;
-  onSessionSelect: (session: SavedSession) => void;
   onViewChange: (view: ActiveView) => void;
   activeView: ActiveView;
   isLoading?: boolean;
+  isCollapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-export function Sidebar({ onNewSession, onSessionSelect, onViewChange, activeView, isLoading }: SidebarProps) {
-  const [savedSessions] = useLocalStorage<SavedSession[]>('research_sessions', []);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['library']));
-  const [isCollapsed, setIsCollapsed] = useState(false);
+export function Sidebar({ onNewSession, onViewChange, activeView, isLoading, isCollapsed: externalIsCollapsed, onCollapsedChange }: SidebarProps) {
+  const [internalIsCollapsed, setInternalIsCollapsed] = useState(false);
+  
+  const isCollapsed = externalIsCollapsed !== undefined ? externalIsCollapsed : internalIsCollapsed;
+  const setIsCollapsed = onCollapsedChange || setInternalIsCollapsed;
 
   const toggleSection = (section: string) => {
     if (!isLoading) {
@@ -23,21 +24,11 @@ export function Sidebar({ onNewSession, onSessionSelect, onViewChange, activeVie
       } else if (section === 'library') {
         onViewChange('library');
       }
-      
-      setExpandedSections(prev => {
-        const next = new Set(prev);
-        if (next.has(section)) {
-          next.delete(section);
-        } else {
-          next.add(section);
-        }
-        return next;
-      });
     }
   };
 
   return (
-    <div className={`relative bg-gray-800 border-r border-gray-700 transition-all duration-300 ${
+    <div className={`fixed top-16 sm:top-18 left-0 h-[calc(100vh-4rem)] sm:h-[calc(100vh-4.5rem)] bg-gray-800 border-r border-gray-700 transition-all duration-300 z-40 ${
       isCollapsed ? 'w-12 sm:w-14 md:w-16' : 'w-16 sm:w-20 md:w-64'
     }`}>
       <button
@@ -50,7 +41,7 @@ export function Sidebar({ onNewSession, onSessionSelect, onViewChange, activeVie
         }
       </button>
 
-      <div className="h-[calc(100vh-3.5rem)] flex flex-col">
+      <div className="flex flex-col h-full pb-4">
         <div className="p-2 sm:p-3 md:p-4">
           <button
             onClick={onNewSession}
@@ -64,7 +55,7 @@ export function Sidebar({ onNewSession, onSessionSelect, onViewChange, activeVie
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto">
+        <nav className="flex-1">
           <div className="px-1.5 sm:px-2 md:px-3 py-1">
             <button
               onClick={() => toggleSection('discover')}
@@ -77,9 +68,6 @@ export function Sidebar({ onNewSession, onSessionSelect, onViewChange, activeVie
                 <Compass className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 {!isCollapsed && <span className="hidden md:inline text-sm">Discover</span>}
               </div>
-              {!isCollapsed && (
-                <ChevronRight className="hidden md:block h-4 w-4" />
-              )}
             </button>
           </div>
 
@@ -95,9 +83,6 @@ export function Sidebar({ onNewSession, onSessionSelect, onViewChange, activeVie
                 <Library className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 {!isCollapsed && <span className="hidden md:inline text-sm">My Library</span>}
               </div>
-              {!isCollapsed && (
-                <ChevronRight className="hidden md:block h-4 w-4" />
-              )}
             </button>
           </div>
         </nav>

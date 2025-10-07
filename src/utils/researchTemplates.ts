@@ -1,4 +1,4 @@
-import type { ResearchTemplate } from '../types';
+import type { ResearchTemplate, ResearchType } from '../types';
 
 export const researchTemplates: Record<string, ResearchTemplate> = {
   basic: {

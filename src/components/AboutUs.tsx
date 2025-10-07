@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Github, Mail, ArrowLeft, Loader2, Sparkles, Code2, Users, Zap, Brain, Rocket, Globe } from 'lucide-react';
 import { ThreeScene } from './ThreeScene';
 import { ContactForm } from './ContactForm';
@@ -38,21 +38,21 @@ export function AboutUs({ onBack }: AboutUsProps) {
   const stats: Stat[] = [
     { 
       label: "Papers Generated", 
-      value: 10000,
+      value: "10000",
       suffix: "+",
       icon: <Code2 className="h-6 w-6" />,
       color: "from-blue-500 to-cyan-400"
     },
     { 
       label: "Active Users", 
-      value: 5000,
+      value: "5000",
       suffix: "+",
       icon: <Users className="h-6 w-6" />,
       color: "from-purple-500 to-pink-400"
     },
     { 
       label: "Success Rate", 
-      value: 99.9,
+      value: "99.9",
       decimals: 1,
       suffix: "%",
       icon: <Zap className="h-6 w-6" />,
@@ -93,7 +93,7 @@ export function AboutUs({ onBack }: AboutUsProps) {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [features.length]);
 
   return (
     <div className="min-h-screen bg-gray-900 overflow-hidden">
@@ -231,7 +231,7 @@ export function AboutUs({ onBack }: AboutUsProps) {
                 { name: 'Node.js', desc: 'Runtime', gradient: 'from-green-500 to-emerald-400' },
                 { name: 'Vite', desc: 'Build Tool', gradient: 'from-yellow-500 to-amber-400' },
                 { name: 'Git', desc: 'Version Control', gradient: 'from-gray-500 to-gray-400' }
-              ].map((tech, index) => (
+              ].map((tech) => (
                 <div 
                   key={tech.name}
                   className="relative group"

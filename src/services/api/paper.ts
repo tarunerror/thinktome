@@ -1,5 +1,4 @@
 import MistralClient from '@mistralai/mistralai';
-import type { AcademicSource } from '../../types';
 import { fetchArxivPapers, fetchPubMedPapers, fetchSemanticScholarPapers } from './sources';
 import { generateImageDescription } from './images';
 import { generateSectionPrompt } from './prompts';
@@ -79,8 +78,8 @@ Topics: ${repo.topics.join(', ')}`)
             }
           ],
           temperature: 0.7,
-          max_tokens: 2000,
-          top_p: 0.95
+          maxTokens: 2000,
+          topP: 0.95
         });
 
         if (!response?.choices?.[0]?.message?.content) {

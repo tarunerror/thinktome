@@ -60,7 +60,7 @@ ThinkTome is a sophisticated web application that revolutionizes academic resear
 {
   "AI Engine": "Mistral AI",
   "Authentication": "Firebase",
-  "Email Service": "EmailJS",
+  "Email Service": "Nodemailer",
   "API Handling": "Axios + Retry",
   "Data Parsing": "Fast XML Parser"
 }
@@ -98,16 +98,24 @@ src/
 
 3. Create `.env` file with required environment variables:
    ```env
+   # Mistral AI API Key
    VITE_MISTRAL_API_KEY=your_mistral_api_key
-   VITE_EMAILJS_PUBLIC_KEY=your_emailjs_key
-   VITE_EMAILJS_SERVICE_ID=your_service_id
-   VITE_EMAILJS_TEMPLATE_ID=your_template_id
+   
+   # Firebase Configuration
    VITE_FIREBASE_API_KEY=your_firebase_api_key
    VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
    VITE_FIREBASE_PROJECT_ID=your_project_id
    VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
    VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
    VITE_FIREBASE_APP_ID=your_app_id
+   
+   # SMTP Configuration for Nodemailer (Server-side)
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_SECURE=false
+   SMTP_USER=your_email@gmail.com
+   SMTP_PASS=your_app_specific_password
+   SMTP_TO_EMAIL=its.tarun01@gmail.com
    ```
 
 4. Start development server:

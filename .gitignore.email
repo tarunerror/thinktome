@@ -1,0 +1,9 @@
+# .gitignore additions for email service
+
+# Environment variables with sensitive SMTP credentials
+.env
+.env.local
+.env.production
+
+# Vercel
+.vercel

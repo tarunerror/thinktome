@@ -8,8 +8,8 @@ import {
   signOut,
   sendPasswordResetEmail,
   fetchSignInMethodsForEmail,
-  linkWithCredential,
-  type User
+  type User,
+  type AuthError
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
@@ -110,10 +110,11 @@ export const useAuthStore = create<AuthState>((set) => ({
           isAuthenticated: true,
           isLoading: false
         });
-      } catch (error: any) {
-        if (error.code === 'auth/account-exists-with-different-credential') {
+      } catch (error) {
+        const authError = error as AuthError;
+        if (authError.code === 'auth/account-exists-with-different-credential') {
           // Get existing providers for the email
-          const email = error.customData.email;
+          const email = authError.customData?.email as string;
           const providers = await fetchSignInMethodsForEmail(auth, email);
           
           if (providers.includes('google.com')) {
